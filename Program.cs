@@ -8,6 +8,7 @@ namespace SubModuleLink
 {
     public class Program
     {
+        private const string GIT_FILE_NAME = ".git";
         private const string SUBMODULE_FILE_NAME = ".gitmodules";
 
         private static readonly Regex _submoduleSection = new Regex(@"\[\W*submodule\W+""([^""]+)""\W*\]", RegexOptions.Compiled);
@@ -87,6 +88,7 @@ namespace SubModuleLink
                                 Console.Error.WriteLine("Unable to delete junction '{0}': {1}", junction.FullName, exception.Message);        
                             }
 
+                            // restore things to how they were
                             junction.Create();
                             continue;
                         }
@@ -94,6 +96,28 @@ namespace SubModuleLink
                         // if it's already junction ignore it
                         if (junction.Attributes.HasFlag(FileAttributes.ReparsePoint)) continue;
                         if (junction.GetFiles().Length > 0 || junction.GetDirectories().Length > 0) continue;
+                    }
+
+                    // modify the submodule .git file to ensure gitdir is absolute
+                    var gitpath = Path.Combine(path, target.Path, GIT_FILE_NAME);
+                    if (File.Exists(gitpath))
+                    {
+                        try
+                        {
+                            var content = File.ReadAllText(gitpath);
+                            content = Regex.Replace(content, @"^gitdir: ([^\n]+)", m =>
+                                {
+                                    var gitdir = m.Groups[1].Value;
+                                    gitdir = Regex.Replace(gitdir, @"^\S+?(.git\S+)", n => Path.Combine(path, n.Groups[1].Value.Replace('/','\\')));
+                                    return string.Format("gitdir: {0}", gitdir);
+                                });
+
+                            File.WriteAllText(gitpath, content);
+                        }
+                        catch (Exception exception) 
+                        {
+                            Console.Error.WriteLine("Unable to fix gitdir: {0}.", exception.Message);
+                        }
                     }
 
                     // create junction
