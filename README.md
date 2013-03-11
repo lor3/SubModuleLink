@@ -8,30 +8,30 @@ Example
 
 Start:
 
-Repository
-  -> Submodules
-    -> Foo
-    -> Bar
-      -> Submodules
-        -> Foo
+  Repository
+    -> Submodules
+      -> Foo
+      -> Bar
+        -> Submodules
+          -> Foo
 
 > submodulelink Repository
 
-Repository
-  -> Submodules
-    -> Foo
-    -> Bar
-      -> Submodules
-        -> Foo (junction link to Repository/Submodules/Foo)
+  Repository
+    -> Submodules
+      -> Foo
+      -> Bar
+        -> Submodules
+          -> Foo (junction link to Repository/Submodules/Foo)
 
 > submodulelink /u Repository
 
-Repository
-  -> Submodules
-    -> Foo
-    -> Bar
-      -> Submodules
-        -> Foo (Empty dir)
+  Repository
+    -> Submodules
+      -> Foo
+      -> Bar
+        -> Submodules
+          -> Foo (Empty dir)
 
         
 Note: Submodule directories will not be modified if not empty.
