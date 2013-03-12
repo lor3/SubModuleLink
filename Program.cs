@@ -108,7 +108,10 @@ namespace SubModuleLink
                             content = Regex.Replace(content, @"^gitdir: ([^\n]+)", m =>
                                 {
                                     var gitdir = m.Groups[1].Value;
-                                    gitdir = Regex.Replace(gitdir, @"^\S+?(.git\S+)", n => Path.Combine(path, n.Groups[1].Value.Replace('/','\\')));
+                                    if (!Path.IsPathRooted(gitdir))
+                                    {
+                                        gitdir = Regex.Replace(gitdir, @"^\S+?(.git\S+)", n => Path.Combine(path, n.Groups[1].Value.Replace('/', '\\')));
+                                    }
                                     return string.Format("gitdir: {0}", gitdir);
                                 });
 
